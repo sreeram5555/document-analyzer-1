@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
             throw new Error(errorData.message || "Login failed");
         }
 
+        console.log("Login response:", res);
         const data = await res.json();
         localStorage.setItem('docu-analyzer-token', data.token);
         setToken(data.token); // This triggers the useEffect above to fetch user data
