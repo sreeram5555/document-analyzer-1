@@ -24,15 +24,17 @@ const LoginPage = () => {
     try {
       // Call the login function from AuthContext directly.
       // It will handle the API call, token storage, and navigation.
-      const success = await login(email, password);
-
-      if (!success) {
-        // If login returns false, it means an error occurred.
-        // We'll set a generic error, as the context's login function will console.log the specific one.
-        setError('Invalid email or password. Please try again.');
-      }
-      navigate('/dashboard');
       
+
+     const success = await login(email, password);
+
+if (success) {
+  // Only navigate if the login was successful
+  navigate('/dashboard');
+} else {
+  // Otherwise, show an error
+  setError('Invalid email or password. Please try again.');
+}
 
     } catch (err) {
       // This will catch any unexpected errors during the login process.
