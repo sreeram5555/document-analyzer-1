@@ -20,7 +20,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "https://document-analyzer-1-4x6b.onrender.com" } });
 const ML_AGENT_URL = process.env.ML_AGENT_URL;
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: 'https://document-analyzer-1-4x6b.onrender.com', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
