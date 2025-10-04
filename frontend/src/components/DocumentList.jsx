@@ -6,16 +6,15 @@ import { FiFileText, FiChevronRight, FiInbox } from 'react-icons/fi';
 const DocumentList = ({ documents }) => {
   const navigate = useNavigate();
 
-  if (documents.length === 0) {
+  if (!documents || documents.length === 0) {
     return (
-        <div className="flex flex-col items-center justify-center text-center h-full min-h-[300px] text-text-secondary">
+        <div className="flex flex-col items-center justify-center text-center h-full min-h-[200px] text-text-secondary">
             <FiInbox size={48} className="mb-4" />
             <p>Your analyzed documents will appear here.</p>
         </div>
     );
   }
 
-  // Navigate to the detail page, passing the document data in the state
   const handleViewDetails = (doc) => {
     navigate(`/document/${doc.id}`, { state: { document: doc } });
   };
@@ -25,7 +24,7 @@ const DocumentList = ({ documents }) => {
       <AnimatePresence>
         {documents.map((doc, index) => (
           <motion.div
-            key={doc.id}
+            key={doc.id || index}
             layout
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -36,10 +35,16 @@ const DocumentList = ({ documents }) => {
           >
             <FiFileText className="text-primary text-2xl flex-shrink-0" />
             <div className="ml-4 flex-grow overflow-hidden">
-              <p className="text-text-primary font-medium truncate">{doc.file.name}</p>
-              <p className="text-xs text-text-secondary">
-                {(doc.file.size / 1024).toFixed(2)} KB
+              <p className="text-text-primary font-medium truncate">
+                {/* Use a fallback just in case the name is missing */}
+                {doc.file?.name || 'Untitled Document'}
               </p>
+              {/* Only show the size if it's a valid number > 0 */}
+              {doc.file?.size > 0 && (
+                <p className="text-xs text-text-secondary">
+                  {(doc.file.size / 1024).toFixed(2)} KB
+                </p>
+              )}
             </div>
             <FiChevronRight className="ml-4 text-text-secondary flex-shrink-0" />
           </motion.div>

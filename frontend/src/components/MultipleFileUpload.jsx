@@ -1,89 +1,4 @@
-// import React, { useState, useCallback } from 'react';
-// import { useDropzone } from 'react-dropzone';
-// import { FiUploadCloud, FiFileText, FiX } from 'react-icons/fi'; // Using react-icons
 
-// // A small helper function to format bytes into a readable string
-// const formatBytes = (bytes, decimals = 2) => {
-//   if (bytes === 0) return '0 Bytes';
-//   const k = 1024;
-//   const dm = decimals < 0 ? 0 : decimals;
-//   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-//   const i = Math.floor(Math.log(bytes) / Math.log(k));
-//   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-// };
-
-// const MultipleFileUpload = () => {
-//   const [files, setFiles] = useState([]);
-
-//   // useCallback is used for performance optimization
-//   const onDrop = useCallback((acceptedFiles) => {
-//     // You can add new files to the existing list
-//     setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
-//   }, []);
-
-//   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-//     onDrop,
-//     accept: { // Optional: Specify accepted file types
-//       'image/png': ['.png'],
-//       'image/jpeg': ['.jpg', '.jpeg'],
-//       'application/pdf': ['.pdf'],
-//     }
-//   });
-
-//   // Function to remove a specific file from the list
-//   const removeFile = (fileName) => {
-//     setFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
-//   };
-
-//   const fileList = files.map(file => (
-//     <li key={file.path} className="flex items-center justify-between p-3 my-2 bg-gray-100 rounded-md shadow-sm">
-//       <div className="flex items-center">
-//         <FiFileText className="w-6 h-6 mr-3 text-gray-500" />
-//         <span className="font-medium text-gray-700">{file.name}</span>
-//         <span className="ml-3 text-sm text-gray-500">({formatBytes(file.size)})</span>
-//       </div>
-//       <button
-//         onClick={() => removeFile(file.name)}
-//         className="p-1 text-gray-500 rounded-full hover:bg-gray-200 hover:text-red-600 focus:outline-none"
-//         aria-label={`Remove ${file.name}`}
-//       >
-//         <FiX className="w-5 h-5" />
-//       </button>
-//     </li>
-//   ));
-
-//   return (
-//     <div className="w-full max-w-2xl p-4 mx-auto">
-//       {/* The Dropzone Area */}
-//       <div
-//         {...getRootProps()}
-//         className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-300
-//           ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'}`}
-//       >
-//         <input {...getInputProps()} />
-//         <FiUploadCloud className="w-12 h-12 text-gray-400" />
-//         {isDragActive ? (
-//           <p className="mt-2 text-lg font-semibold text-blue-600">Drop the files here ...</p>
-//         ) : (
-//           <p className="mt-2 text-gray-600">
-//             Drag & drop some files here, or <span className="font-semibold text-blue-500">click to select files</span>
-//           </p>
-//         )}
-//         <p className="mt-1 text-xs text-gray-500">PNG, JPG, PDF accepted</p>
-//       </div>
-
-//       {/* The File List */}
-//       {files.length > 0 && (
-//         <aside className="mt-6">
-//           <h4 className="text-lg font-semibold text-gray-800">Selected Files:</h4>
-//           <ul className="mt-2">{fileList}</ul>
-//         </aside>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default MultipleFileUpload;
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FiUploadCloud, FiFileText, FiX, FiCheckCircle } from 'react-icons/fi';
@@ -231,4 +146,5 @@ const MultipleFileUpload = () => {
 };
 
 export default MultipleFileUpload;
+
 

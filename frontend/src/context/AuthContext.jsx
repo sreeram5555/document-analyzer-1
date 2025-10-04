@@ -1,3 +1,5 @@
+// frontend/src/context/AuthContext.jsx
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -5,44 +7,76 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem('docu-analyzer-token'));
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate checking for an existing session on app load
-    try {
-      const storedUser = localStorage.getItem('docu-analyzer-user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-      console.error("Failed to parse user from localStorage", error);
-    } finally {
-        setLoading(false);
-    }
-  }, []);
+    const fetchUser = async () => {
+      setLoading(true);
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5000/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
 
-  // SIMULATED LOGIN FUNCTION
+          if (res.ok) {
+            const data = await res.json();
+            setUser({ ...data.user, avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${data.user.email}` });
+          } else {
+            // Token is invalid or expired
+            localStorage.removeItem('docu-analyzer-token');
+            setToken(null);
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user", error);
+          localStorage.removeItem('docu-analyzer-token');
+          setToken(null);
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, [token]);
+
+  // This is now the ONLY function that calls the login API
   const login = async (email, password) => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const userData = { name: 'Alex Ryder', email: email, avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${email}` };
-        localStorage.setItem('docu-analyzer-user', JSON.stringify(userData));
-        setUser(userData);
+    try {
+        const res = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || "Login failed");
+        }
+
+        const data = await res.json();
+        localStorage.setItem('docu-analyzer-token', data.token);
+        setToken(data.token); // This triggers the useEffect above to fetch user data
+        
         navigate('/');
-        resolve(true);
-      }, 1500); // Simulate network delay
-    });
+        return true; // Return true on success
+
+    } catch (error) {
+        console.error("Login error from context:", error);
+        return false; // Return false on failure
+    }
   };
 
-  // SIMULATED LOGOUT FUNCTION
   const logout = () => {
-    localStorage.removeItem('docu-analyzer-user');
+    localStorage.removeItem('docu-analyzer-token');
     setUser(null);
+    setToken(null);
     navigate('/login');
   };
 
-  const value = { user, login, logout, isAuthenticated: !!user, loading };
+  const value = { user, token, login, logout, isAuthenticated: !!user, loading };
 
   return (
     <AuthContext.Provider value={value}>

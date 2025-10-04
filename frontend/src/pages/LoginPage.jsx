@@ -1,3 +1,5 @@
+// frontend/src/pages/LoginPage.jsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,18 +12,41 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [error, setError] = useState('');
+  const { login } = useAuth(); // Get the login function from context
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    await login(email, password);
-    // The login function in context will handle navigation
+    setError('');
+
+    try {
+      // Call the login function from AuthContext directly.
+      // It will handle the API call, token storage, and navigation.
+      const success = await login(email, password);
+
+      if (!success) {
+        // If login returns false, it means an error occurred.
+        // We'll set a generic error, as the context's login function will console.log the specific one.
+        setError('Invalid email or password. Please try again.');
+      }
+    } catch (err) {
+      // This will catch any unexpected errors during the login process.
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <AuthLayout title="Welcome Back!">
+      {/* Display error messages */}
+      {error && (
+        <div className="mb-4 text-center text-red-400">
+          <p>{error}</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="relative">
           <FiMail className="absolute top-1/2 left-3 -translate-y-1/2 text-text-secondary" />

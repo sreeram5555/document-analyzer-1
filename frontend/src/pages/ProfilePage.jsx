@@ -1,92 +1,55 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+// frontend/src/pages/ProfilePage.jsx
+
+import React from 'react';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import AuthLayout from '../components/AuthLayout';
-import Spinner from '../components/Spinner';
-import { FiUser, FiMail, FiLock, FiSend } from 'react-icons/fi';
+import { FiUser, FiMail, FiEdit2 } from 'react-icons/fi';
 
-const SignupPage = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+const ProfilePage = () => {
+  const { user } = useAuth();
 
-  // This function now simulates requesting an OTP from a backend
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // Simulate API call to request OTP
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    console.log(`Simulating OTP request for ${email}. In a real app, an email would be sent.`);
-    
-    // On success, navigate to the OTP page and pass the email along
-    // This ensures the OTP page knows who is trying to verify.
-    navigate('/verify-otp', { state: { email: email } });
-    
-    setIsLoading(false);
-  };
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <AuthLayout title="Create Your Account">
-      {error && <p className="mb-4 text-center text-red-400">{error}</p>}
-      <form onSubmit={handleSignup} className="space-y-6">
-        <div className="relative">
-          <FiUser className="absolute top-1/2 left-3 -translate-y-1/2 text-text-secondary" />
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full bg-surface border border-secondary rounded-lg py-3 pl-10 pr-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition"
-          />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-2xl mx-auto"
+    >
+      <div className="bg-surface p-8 rounded-2xl border border-secondary shadow-lg">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <img
+              src={user.avatar}
+              alt="User Avatar"
+              className="w-32 h-32 rounded-full border-4 border-primary"
+            />
+            <button className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full hover:bg-opacity-80 transition">
+              <FiEdit2 size={16} />
+            </button>
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-text-primary">{user.name}</h1>
+            <p className="text-text-secondary">{user.email}</p>
+          </div>
         </div>
-        <div className="relative">
-          <FiMail className="absolute top-1/2 left-3 -translate-y-1/2 text-text-secondary" />
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full bg-surface border border-secondary rounded-lg py-3 pl-10 pr-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition"
-          />
+
+        <div className="mt-8 border-t border-secondary pt-6 space-y-4">
+          <div className="flex items-center">
+            <FiUser className="text-primary mr-4" />
+            <span className="text-text-secondary">Full Name: {user.name}</span>
+          </div>
+          <div className="flex items-center">
+            <FiMail className="text-primary mr-4" />
+            <span className="text-text-secondary">Email: {user.email}</span>
+          </div>
         </div>
-        <div className="relative">
-          <FiLock className="absolute top-1/2 left-3 -translate-y-1/2 text-text-secondary" />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full bg-surface border border-secondary rounded-lg py-3 pl-10 pr-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition"
-          />
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center space-x-2 transition hover:bg-opacity-90 disabled:bg-opacity-50"
-        >
-          {isLoading ? <Spinner /> : <FiSend />}
-          <span>{isLoading ? 'Sending OTP...' : 'Send Verification Code'}</span>
-        </motion.button>
-      </form>
-      <p className="mt-6 text-center text-text-secondary">
-        Already have an account?{' '}
-        <Link to="/login" className="font-medium text-primary hover:underline">
-          Sign In
-        </Link>
-      </p>
-    </AuthLayout>
+      </div>
+    </motion.div>
   );
 };
 
-export default SignupPage;
+export default ProfilePage;
