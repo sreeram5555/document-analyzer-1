@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       if (token) {
         try {
-          const res = await fetch('https://render.com/docs/web-services#port-binding/api/auth/me', {
+          const res = await fetch('https://document-analyzer-1-backend.onrender.com/api/auth/me', {
             headers: { 'Authorization': `Bearer ${token}` },
           });
 
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   // This is now the ONLY function that calls the login API
   const login = async (email, password) => {
     try {
-        const res = await fetch('https://render.com/docs/web-services#port-binding/api/auth/login', {
+        const res = await fetch('https://document-analyzer-1-backend.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
