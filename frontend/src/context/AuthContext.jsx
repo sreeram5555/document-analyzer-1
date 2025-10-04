@@ -45,11 +45,13 @@ export const AuthProvider = ({ children }) => {
   // This is now the ONLY function that calls the login API
   const login = async (email, password) => {
     try {
+      console.log("Attempting login with email:", email);
         const res = await fetch('https://document-analyzer-1-backend.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
+          console.log("Login response status:", res.status);
 
         if (!res.ok) {
             const errorData = await res.json();
@@ -60,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         const data = await res.json();
         localStorage.setItem('docu-analyzer-token', data.token);
         setToken(data.token); // This triggers the useEffect above to fetch user data
-        
+          
         navigate('/');
         return true; // Return true on success
 
