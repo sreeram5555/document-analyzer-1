@@ -31,6 +31,9 @@ const LoginPage = () => {
         // We'll set a generic error, as the context's login function will console.log the specific one.
         setError('Invalid email or password. Please try again.');
       }
+      navigate('/dashboard');
+      
+
     } catch (err) {
       // This will catch any unexpected errors during the login process.
       setError(err.message || 'An unexpected error occurred.');
