@@ -25,7 +25,7 @@ const OtpPage = () => {
     setError('');
 
     try {
-        const res = await fetch('http://localhost:5000/api/auth/verify-email', {
+        const res = await fetch('https://document-analyzer-1-backend.onrender.com/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, otp }),
@@ -54,7 +54,7 @@ const OtpPage = () => {
   const handleResendOtp = async () => {
     // Add logic to call your /resend-otp endpoint
     try {
-        await fetch('http://localhost:5000/api/auth/resend-otp', {
+        await fetch('https://document-analyzer-1-backend.onrender.com/api/auth/resend-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
