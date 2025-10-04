@@ -17,7 +17,7 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:5173" } });
+const io = new Server(server, { cors: { origin: "https://document-analyzer-1-4x6b.onrender.com" } });
 const ML_AGENT_URL = process.env.ML_AGENT_URL;
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
