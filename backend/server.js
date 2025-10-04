@@ -20,7 +20,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "https://document-analyzer-1-4x6b.onrender.com" } });
 const ML_AGENT_URL = process.env.ML_AGENT_URL;
 
-app.use(cors({ origin: 'https://document-analyzer-1-4x6b.onrender.com', credentials: true }));
+app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -50,4 +50,4 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`${PORT}`));
