@@ -101,4 +101,5 @@ const DocumentUploader = ({ onAnalyze, isAnalyzing }) => {
   );
 };
 
+
 export default DocumentUploader;
