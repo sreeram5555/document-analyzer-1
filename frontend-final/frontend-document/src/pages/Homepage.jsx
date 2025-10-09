@@ -3,7 +3,7 @@ import Firstpage from './Firstpage';
 import Secondpage from './Secondpage';
 import Thirdpage from './Thirdpage';
 import FourthPage from './Fourthpage';
-import Eventspage from './eventspage';
+
 const Homepage = () => {
   return (
     <div>
