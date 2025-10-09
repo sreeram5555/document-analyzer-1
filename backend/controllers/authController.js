@@ -47,7 +47,7 @@ export const register = async (req, res) => {
       password: hashed,
       verifyotp: otp,
       verifyotpexpireat: Date.now() + 10 * 60 * 1000,
-      isaccountverified: false,
+      isaccountverified: true,
     });
 
 
