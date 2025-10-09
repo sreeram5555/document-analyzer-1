@@ -30,6 +30,8 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/user", userRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 
 io.on('connection', (socket) => {
   socket.on('sendMessage', async ({ userId, documentId, question, history }) => {

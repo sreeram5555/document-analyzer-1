@@ -30,9 +30,11 @@ export const uploadDocument = async (req, res) => {
             summary: analysisResult.structured_data.summary,
             Dates: analysisResult.structured_data.important_dates || [],
             entites: analysisResult.structured_data.key_terms || [],
-            chatHistory: []
+            chatHistory: [],
+            events:analysisResult.structured_data.events||[],
         };
-        
+        console.log(newDocument.data);
+
         user.files.push(newDocument);
         await user.save(); // This will now succeed because filePath is included
         
@@ -44,7 +46,7 @@ export const uploadDocument = async (req, res) => {
                 file_name: createdDocument.DocumentName,
                 structured_data: analysisResult.structured_data,
                 extracted_text: analysisResult.extracted_text,
-                documentId: createdDocument._id
+                documentId: createdDocument._id,
             } 
         });
 
@@ -82,5 +84,40 @@ export const getDocumentChatHistory = async (req, res) => {
         res.status(200).json({ success: true, chatHistory: document.chatHistory });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+// Add this function to your documentController.js
+
+export const downloadDocument = async (req, res) => {
+    try {
+        const { documentId } = req.params;
+        const user = await userModel.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const document = user.files.id(documentId);
+        if (!document) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
+        }
+
+        // Check if file exists
+        if (!document.filePath || !fs.existsSync(document.filePath)) {
+            return res.status(404).json({ success: false, message: 'File not found on server' });
+        }
+
+        // Set headers for file download
+        res.setHeader('Content-Disposition', `attachment; filename="${document.DocumentName}"`);
+        res.setHeader('Content-Type', 'application/pdf');
+
+        // Stream the file to the response
+        const fileStream = fs.createReadStream(document.filePath);
+        fileStream.pipe(res);
+
+    } catch (error) {
+        console.error("💥 DOWNLOAD CONTROLLER ERROR:", error.message);
+        res.status(500).json({ success: false, message: 'Error downloading document' });
     }
 };
