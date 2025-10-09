@@ -11,6 +11,9 @@ import authRoutes from "./routes/authRoutes.js";
 import documentRoutes from './routes/documentRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import userModel from './models/userModel.js';
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 dotenv.config();
 connectDB();
@@ -18,6 +21,8 @@ connectDB();
 const app = express();
 
 app.use(cors({ origin: '*', credentials: true }));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "https://document-analyzer-1-4x6b.onrender.com" } });
@@ -30,7 +35,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/user", userRoutes);
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads/profiles')));
 
 
 io.on('connection', (socket) => {
