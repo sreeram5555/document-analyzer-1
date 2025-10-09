@@ -1,0 +1,23 @@
+/* Features section styles */
+.feature-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: #60a5fa;
+}
+
+.feature-icon {
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1);
+}
+
+.cta-section {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}

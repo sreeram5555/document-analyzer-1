@@ -1,0 +1,30 @@
+{
+  "user_id": "68e03d9fbe9f443a99737111",
+  "file_name": "ticket.pdf",
+  "extracted_text": "--- Page 1 ---\nHyderabad\nHYD 19:45 hrs\nTue, 05 Nov\nRajiv Gandhi International \nAirport\nPNR\nQ8KU2N\nAIR INDIA \nEXPRESS\nIX-2934\nFlight Ticket (One way)\nBooking ID: NF7AAUH180411509804, (Booked on 29 October 2024)\nBarcode(s) for your journey \non \nHyderabad-Lucknow \nAIR INDIA EXPRESS\nMotati Srikar Reddy\nHyderabad - Lucknow\nTue, 05 Nov 2024 • Non stop • 1h 50m duration\n1h 50m\nLucknow\n21:35 hrs LKO\nTue, 05 Nov\nAmausi Airport Terminal T3\nXpress Value\nEconomy\nStudent Fare\nCheck-in: 15 Kgs (1 piece only) per Adult\nCabin: 7 Kgs per Adult\nTRAVELLER\nSEAT\nMEAL\nE-TICKET NO\nMR. MOTATI SRIKAR REDDY Adult\n26B\nQ8KU2N\nYou have paid INR 4830\nYou saved INR 602\nDIGI YATRA\nAvoid Long Queues at the Airport with DigiYatra\nUse DigiYatra — the Ministry of Civil Aviation’s mobile app to enjoy a hassle-free airport experience, for \nyour upcoming flight. It enables you to activate face scan for check-in at the airport with 2 easy steps:\nStep 1: Pre-verifying your identity using Aadhaar Card details\nStep 2: Updating your upcoming flight’s boarding pass\nKnow More\n\n\n--- Page 2 ---\nIMPORTANT INFORMATION\n•\nCheck-in Time : We advise you to reach the airport atleast 3 hours before departure. Check-in \ncounter generally closes 60 minutes before scheduled departure. It may vary from airline to airline \nand so it is advisable to check with the airline once.\n•\nDGCA passenger charter : Please refer to passenger charter by clicking Here\n•\nAGE/ID PROOF: : Only students above 12 years of age are eligible for special fares and/or additional \nbaggage allowances. Carrying valid student ID cards and student visas (where applicable) is \nmandatory, else the passenger may be denied boarding or asked to pay for extra baggage.\n•\nCheck travel guidelines and baggage information below: : Carry no more than 1 check-in baggage \nand 1 hand baggage per passenger. If violated, airline may levy extra charges.\n•\nUnaccompanied Minors Travelling: : An unaccompanied minor usually refers to a child traveling \nwithout an adult aged 18 or older.Please check with the airline for their rules and regulations \nregarding unaccompanied minors, as these can differ between airlines.\n•\nValid ID proof needed : Carry a valid photo identification proof (Driver Licence, Aadhar Card, Pan \nCard or any other Government recognised photo identification)\n•\nPlease do not share your personal banking and security details like passwords, CVV, etc. with any \nthird person or party claiming to represent MakeMyTrip. For any query, please reach out to \nMakeMyTrip on our official customer care number.\nYou can view all \n \n , If you want to manage \ncancellation, date change and baggage related information here\nyour booking, you visit \n section using this \nMyTrips\nlink\nContact MakeMyTrip +91124 4628747 / +91124 5045105 (India Number)\nContact AIR INDIA EXPRESS 044-40013001\n\n\n--- Page 3 ---\n\n\n",
+  "structured_data": {
+    "category": "travel",
+    "heading": "Air India Express Flight Ticket from Hyderabad to Lucknow",
+    "summary": "This document is a one-way flight ticket confirmation for Mr. Motati Srikar Reddy on Air India Express flight IX-2934 from Hyderabad (HYD) to Lucknow (LKO). The flight is scheduled for Tuesday, November 5, 2024, departing at 19:45 and arriving at 21:35. The booking was made on October 29, 2024, with the PNR Q8KU2N. The ticket is an 'Xpress Value' Student Fare, and the total amount paid was INR 4830. The baggage allowance is 15 Kgs for check-in and 7 Kgs for cabin.",
+    "key_terms": [
+      "Motati Srikar Reddy",
+      "Air India Express",
+      "PNR: Q8KU2N",
+      "Booking ID: NF7AAUH180411509804",
+      "Flight Number: IX-2934",
+      "Hyderabad (HYD)",
+      "Lucknow (LKO)",
+      "Student Fare",
+      "Rajiv Gandhi International Airport",
+      "Amausi Airport",
+      "MakeMyTrip"
+    ],
+    "important_dates": [
+      { "date": "2024-10-29", "event": "Date the flight ticket was booked." },
+      {
+        "date": "2024-11-05",
+        "event": "Date of flight departure from Hyderabad to Lucknow."
+      }
+    ]
+  }
+}

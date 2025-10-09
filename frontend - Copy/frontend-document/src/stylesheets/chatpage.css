@@ -1,0 +1,120 @@
+/* Chat page styles */
+.chat-container {
+  height: calc(100vh - 200px);
+}
+
+.message-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.message-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom scrollbar for messages */
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Loading animation */
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.loading-dot {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+/* Message bubbles */
+.message-bubble {
+  position: relative;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.message-bubble.user {
+  margin-left: auto;
+}
+
+.message-bubble.ai {
+  margin-right: auto;
+}
+
+/* Smooth transitions for input */
+.chat-input {
+  transition: all 0.3s ease;
+}
+
+.chat-input:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Quick questions hover effect */
+.quick-question {
+  transition: all 0.2s ease;
+}
+
+.quick-question:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Header shadow on scroll */
+.header-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 90%;
+  }
+  
+  .chat-container {
+    height: calc(100vh - 160px);
+  }
+}
+
+/* Print styles for chat history */
+@media print {
+  .chat-input,
+  .quick-questions,
+  .info-panel {
+    display: none !important;
+  }
+  
+  .messages-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
