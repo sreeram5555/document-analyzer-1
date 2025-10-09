@@ -20,6 +20,7 @@
 //   FaCloudUploadAlt,
 //   FaSpinner,
 //   FaExclamationTriangle,
+//   FaSignOutAlt // Add this import
 // } from "react-icons/fa";
 // import "../stylesheets/yourdocumentspage.css";
 // import { useNavigate } from "react-router-dom";
@@ -27,14 +28,13 @@
 
 // const Yourdocumentspage = () => {
 //   const navigate = useNavigate();
-//     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
+//   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [selectedFilter, setSelectedFilter] = useState("all");
 //   const [showUploadModal, setShowUploadModal] = useState(false);
 //   const [uploadedFile, setUploadedFile] = useState(null);
 //   const [isUploading, setIsUploading] = useState(false);
-//   const { isAuthenticated, user, token } = useAuth();
+//   const { isAuthenticated, user, token, logout } = useAuth(); // Make sure to include logout
 
 //   const [documents, setDocuments] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -42,191 +42,92 @@
 //   const [uploadError, setUploadError] = useState(null);
 
 //   // Sorting state
-//   // const [sortConfig, setSortConfig] = useState({
-//   //   key: "uploadTime", // 'name', 'uploadTime', 'size', 'status'
-//   //   direction: "desc", // 'asc' or 'desc'
-//   // });
-//   // Change this line in your state declarations:
-// const [sortConfig, setSortConfig] = useState({
-//   key: 'createdAt', // Changed from 'uploadTime' to 'createdAt'
-//   direction: 'desc' // Keep as 'desc' for newest first
-// });
+//   const [sortConfig, setSortConfig] = useState({
+//     key: 'createdAt',
+//     direction: 'desc'
+//   });
 
 //   // Get token from localStorage as fallback
 //   const getAuthToken = () => {
 //     return token || localStorage.getItem("token");
 //   };
 
-//   // Add this function to handle logout
-// const handleLogout = () => {
-//   setShowLogoutConfirm(true);
-// };
+//   // Logout handlers
+//   const handleLogout = () => {
+//     setShowLogoutConfirm(true);
+//   };
 
-// const confirmLogout = () => {
-//   // Clear tokens from localStorage
-//   localStorage.removeItem('token');
-//   localStorage.removeItem('user');
-  
-//   // If your AuthContext has a logout function, use it
-//   if (logout) {
-//     logout();
-//   }
-  
-//   // Navigate to home page
-//   navigate("/");
-//   setShowLogoutConfirm(false);
-// };
+//   const confirmLogout = () => {
+//     // Clear tokens from localStorage
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('user');
+    
+//     // Use the logout function from AuthContext
+//     if (logout) {
+        
+//       logout();
+      
+//     } else {
+//       // Fallback if logout function is not available
+//       navigate("/");
+//     }
+//     setShowLogoutConfirm(false);
+//   };
 
-// const cancelLogout = () => {
-//   setShowLogoutConfirm(false);
-// };
+//   const cancelLogout = () => {
+//     setShowLogoutConfirm(false);
+//   };
+
 //   // Sort documents based on sortConfig
-//   // const getSortedDocuments = (docs) => {
-//   //   if (!sortConfig.key) return docs;
+//   const getSortedDocuments = (docs) => {
+//     if (!sortConfig.key) return docs;
 
-//   //   return [...docs].sort((a, b) => {
-//   //     let aValue = a[sortConfig.key];
-//   //     let bValue = b[sortConfig.key];
+//     return [...docs].sort((a, b) => {
+//       let aValue = a[sortConfig.key];
+//       let bValue = b[sortConfig.key];
 
-//   //     // Handle different data types for sorting
-//   //     switch (sortConfig.key) {
-//   //       case 'name':
-//   //       case 'DocumentName':
-//   //         aValue = (a.name || a.DocumentName || '').toLowerCase();
-//   //         bValue = (b.name || b.DocumentName || '').toLowerCase();
-//   //         break;
+//       // Handle different data types for sorting
+//       switch (sortConfig.key) {
+//         case 'name':
+//         case 'DocumentName':
+//           aValue = (a.name || a.DocumentName || '').toLowerCase();
+//           bValue = (b.name || b.DocumentName || '').toLowerCase();
+//           break;
+        
+//         case 'uploadTime':
+//         case 'createdAt':
+//           // Convert to timestamp for proper date comparison - newest first
+//           aValue = new Date(a.createdAt || a.uploadTime).getTime();
+//           bValue = new Date(b.createdAt || b.uploadTime).getTime();
+//           break;
+        
+//         case 'size':
+//           // Extract numeric value from size string (e.g., "2.4 MB" -> 2.4)
+//           aValue = parseFloat(a.size) || 0;
+//           bValue = parseFloat(b.size) || 0;
+//           break;
+        
+//         case 'status':
+//           // Sort by status order: analyzed > analyzing
+//           const statusOrder = { analyzed: 1, analyzing: 2 };
+//           aValue = statusOrder[a.status] || 3;
+//           bValue = statusOrder[b.status] || 3;
+//           break;
+        
+//         default:
+//           aValue = aValue || '';
+//           bValue = bValue || '';
+//       }
 
-//   //       case 'uploadTime':
-//   //         // Convert to timestamp for proper date comparison
-//   //         aValue = new Date(a.createdAt || a.uploadTime).getTime();
-//   //         bValue = new Date(b.createdAt || b.uploadTime).getTime();
-//   //         break;
-
-//   //       case 'size':
-//   //         // Extract numeric value from size string (e.g., "2.4 MB" -> 2.4)
-//   //         aValue = parseFloat(a.size) || 0;
-//   //         bValue = parseFloat(b.size) || 0;
-//   //         break;
-
-//   //       case 'status':
-//   //         // Sort by status order: analyzed > analyzing
-//   //         const statusOrder = { analyzed: 1, analyzing: 2 };
-//   //         aValue = statusOrder[a.status] || 3;
-//   //         bValue = statusOrder[b.status] || 3;
-//   //         break;
-
-//   //       default:
-//   //         aValue = aValue || '';
-//   //         bValue = bValue || '';
-//   //     }
-
-//   //     if (aValue < bValue) {
-//   //       return sortConfig.direction === 'asc' ? -1 : 1;
-//   //     }
-//   //     if (aValue > bValue) {
-//   //       return sortConfig.direction === 'asc' ? 1 : -1;
-//   //     }
-//   //     return 0;
-//   //   });
-//   // };
-
-//   // This will always prioritize newest documents, then apply other sorting
-//   // const getSortedDocuments = (docs) => {
-//   //   if (!sortConfig.key) return docs;
-
-//   //   return [...docs].sort((a, b) => {
-//   //     // Always sort by date first (newest first)
-//   //     const aDate = new Date(a.createdAt || a.uploadTime).getTime();
-//   //     const bDate = new Date(b.createdAt || b.uploadTime).getTime();
-
-//   //     // If dates are different, sort by date (newest first)
-//   //     if (aDate !== bDate) {
-//   //       return bDate - aDate; // This ensures newest always comes first
-//   //     }
-
-//   //     // If dates are the same, apply the selected sort
-//   //     let aValue = a[sortConfig.key];
-//   //     let bValue = b[sortConfig.key];
-
-//   //     switch (sortConfig.key) {
-//   //       case "name":
-//   //       case "DocumentName":
-//   //         aValue = (a.name || a.DocumentName || "").toLowerCase();
-//   //         bValue = (b.name || b.DocumentName || "").toLowerCase();
-//   //         break;
-//   //       case "size":
-//   //         aValue = parseFloat(a.size) || 0;
-//   //         bValue = parseFloat(b.size) || 0;
-//   //         break;
-//   //       case "status":
-//   //         const statusOrder = { analyzed: 1, analyzing: 2 };
-//   //         aValue = statusOrder[a.status] || 3;
-//   //         bValue = statusOrder[b.status] || 3;
-//   //         break;
-//   //       default:
-//   //         aValue = aValue || "";
-//   //         bValue = bValue || "";
-//   //     }
-
-//   //     if (aValue < bValue) {
-//   //       return sortConfig.direction === "asc" ? -1 : 1;
-//   //     }
-//   //     if (aValue > bValue) {
-//   //       return sortConfig.direction === "asc" ? 1 : -1;
-//   //     }
-//   //     return 0;
-//   //   });
-//   // };
-//   // Replace your current getSortedDocuments function with this:
-// const getSortedDocuments = (docs) => {
-//   if (!sortConfig.key) return docs;
-
-//   return [...docs].sort((a, b) => {
-//     let aValue = a[sortConfig.key];
-//     let bValue = b[sortConfig.key];
-
-//     // Handle different data types for sorting
-//     switch (sortConfig.key) {
-//       case 'name':
-//       case 'DocumentName':
-//         aValue = (a.name || a.DocumentName || '').toLowerCase();
-//         bValue = (b.name || b.DocumentName || '').toLowerCase();
-//         break;
-      
-//       case 'uploadTime':
-//       case 'createdAt': // Add this case for createdAt
-//         // Convert to timestamp for proper date comparison - newest first
-//         aValue = new Date(a.createdAt || a.uploadTime).getTime();
-//         bValue = new Date(b.createdAt || b.uploadTime).getTime();
-//         break;
-      
-//       case 'size':
-//         // Extract numeric value from size string (e.g., "2.4 MB" -> 2.4)
-//         aValue = parseFloat(a.size) || 0;
-//         bValue = parseFloat(b.size) || 0;
-//         break;
-      
-//       case 'status':
-//         // Sort by status order: analyzed > analyzing
-//         const statusOrder = { analyzed: 1, analyzing: 2 };
-//         aValue = statusOrder[a.status] || 3;
-//         bValue = statusOrder[b.status] || 3;
-//         break;
-      
-//       default:
-//         aValue = aValue || '';
-//         bValue = bValue || '';
-//     }
-
-//     if (aValue < bValue) {
-//       return sortConfig.direction === 'asc' ? -1 : 1;
-//     }
-//     if (aValue > bValue) {
-//       return sortConfig.direction === 'asc' ? 1 : -1;
-//     }
-//     return 0;
-//   });
-// };
+//       if (aValue < bValue) {
+//         return sortConfig.direction === 'asc' ? -1 : 1;
+//       }
+//       if (aValue > bValue) {
+//         return sortConfig.direction === 'asc' ? 1 : -1;
+//       }
+//       return 0;
+//     });
+//   };
 
 //   // Handle sort request
 //   const handleSort = (key) => {
@@ -252,26 +153,17 @@
 //   };
 
 //   // Get sort label
-//   // const getSortLabel = (key) => {
-//   //   const labels = {
-//   //     name: 'Name',
-//   //     uploadTime: 'Date',
-//   //     size: 'Size',
-//   //     status: 'Status'
-//   //   };
-//   //   return labels[key] || key;
-//   // };
-//   // Update the getSortLabel function:
 //   const getSortLabel = (key) => {
 //     const labels = {
 //       name: "Name",
 //       uploadTime: "Date",
-//       createdAt: "Date", // Add this
+//       createdAt: "Date",
 //       size: "Size",
 //       status: "Status",
 //     };
 //     return labels[key] || key;
 //   };
+
 //   // Fetch documents from backend
 //   const fetchDocuments = async () => {
 //     try {
@@ -299,10 +191,10 @@
 //         if (data.success) {
 //           // Transform backend data to frontend format
 //           const formattedDocuments = data.documents.map((doc) => ({
-//             _id: doc._id, // Use _id for backend communication
-//             id: doc._id, // Keep id for frontend
+//             _id: doc._id,
+//             id: doc._id,
 //             DocumentName: doc.DocumentName,
-//             name: doc.DocumentName, // Keep both for compatibility
+//             name: doc.DocumentName,
 //             uploadTime: formatUploadTime(doc.createdAt),
 //             status: doc.summary ? "analyzed" : "analyzing",
 //             summary: doc.summary || "AI is analyzing your document...",
@@ -355,7 +247,7 @@
 //       }
 //     } catch (error) {
 //       console.error("Error fetching events:", error);
-//       setUpcomingEvents([]); // Set empty array on error
+//       setUpcomingEvents([]);
 //     }
 //   };
 
@@ -502,7 +394,6 @@
 //         console.log("Upload successful:", result);
 
 //         if (result.success) {
-//           // Add the new document to the list with proper backend structure
 //           const newDocument = {
 //             _id: result.data.documentId,
 //             id: result.data.documentId,
@@ -589,14 +480,24 @@
 //   return (
 //     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
 //       <div className="max-w-6xl mx-auto">
-//         {/* Header */}
-//         <div className="mb-8">
-//           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-//             Your Documents
-//           </h1>
-//           <p className="text-gray-600">
-//             View and manage your uploaded legal documents
-//           </p>
+//         {/* Header with Logout Button */}
+//         <div className="flex justify-between items-start mb-8">
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-900 mb-2">
+//               Your Documents
+//             </h1>
+//             <p className="text-gray-600">
+//               View and manage your uploaded legal documents
+//             </p>
+//           </div>
+//           {/* Logout Button */}
+//           <button
+//             onClick={handleLogout}
+//             className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 transition duration-200 shadow-sm"
+//           >
+//             <FaSignOutAlt className="h-4 w-4" />
+//             <span>Logout</span>
+//           </button>
 //         </div>
 
 //         {/* Header Bar */}
@@ -628,22 +529,8 @@
 //                 <option value="analyzed">Analyzed</option>
 //                 <option value="analyzing">Analyzing</option>
 //               </select>
+
 //               {/* Sort Dropdown */}
-//               {/* <div className="relative">
-//                 <select
-//                   value={sortConfig.key}
-//                   onChange={(e) => handleSort(e.target.value)}
-//                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none pr-8"
-//                 >
-//                   <option value="uploadTime">Sort by Date</option>
-//                   <option value="name">Sort by Name</option>
-//                   <option value="size">Sort by Size</option>
-//                   <option value="status">Sort by Status</option>
-//                 </select>
-//                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-//                   {getSortIcon(sortConfig.key)}
-//                 </div>
-//               </div> */}
 //               <div className="relative">
 //                 <select
 //                   value={sortConfig.key}
@@ -659,6 +546,7 @@
 //                   {getSortIcon(sortConfig.key)}
 //                 </div>
 //               </div>
+
 //               {/* Upload Button */}
 //               <button
 //                 onClick={handleUploadClick}
@@ -992,13 +880,49 @@
 //             </div>
 //           </div>
 //         )}
+
+//         {/* Logout Confirmation Modal */}
+//         {showLogoutConfirm && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+//               <div className="flex items-center space-x-3 mb-4">
+//                 <div className="flex-shrink-0">
+//                   <FaSignOutAlt className="w-6 h-6 text-red-500" />
+//                 </div>
+//                 <div>
+//                   <h3 className="text-lg font-semibold text-gray-900">
+//                     Confirm Logout
+//                   </h3>
+//                   <p className="text-sm text-gray-600 mt-1">
+//                     Are you sure you want to logout? You'll need to login again to access your documents.
+//                   </p>
+//                 </div>
+//               </div>
+
+//               <div className="flex space-x-3 mt-6">
+//                 <button
+//                   onClick={cancelLogout}
+//                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg px-4 py-2 transition duration-200"
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button
+//                   onClick={confirmLogout}
+//                   className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 transition duration-200 flex items-center justify-center space-x-2"
+//                 >
+//                   <FaSignOutAlt className="h-4 w-4" />
+//                   <span>Yes, Logout</span>
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
 //       </div>
 //     </div>
 //   );
 // };
 
 // export default Yourdocumentspage;
-
 import React, { useState, useEffect } from "react";
 import {
   FaFilePdf,
@@ -1019,7 +943,7 @@ import {
   FaCloudUploadAlt,
   FaSpinner,
   FaExclamationTriangle,
-  FaSignOutAlt // Add this import
+  FaSignOutAlt
 } from "react-icons/fa";
 import "../stylesheets/yourdocumentspage.css";
 import { useNavigate } from "react-router-dom";
@@ -1033,7 +957,7 @@ const Yourdocumentspage = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { isAuthenticated, user, token, logout } = useAuth(); // Make sure to include logout
+  const { isAuthenticated, user, token, logout } = useAuth();
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1063,9 +987,7 @@ const Yourdocumentspage = () => {
     
     // Use the logout function from AuthContext
     if (logout) {
-        
       logout();
-      
     } else {
       // Fallback if logout function is not available
       navigate("/");
@@ -1075,6 +997,191 @@ const Yourdocumentspage = () => {
 
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
+  };
+
+  // Download document function
+//   const handleDownload = async (document) => {
+//     try {
+//       console.log("Starting download for document:", document);
+      
+//       // Create a comprehensive document report
+//       const downloadContent = `
+// LEGAL DOCUMENT ANALYSIS REPORT
+// ==============================
+
+// Document Information:
+// -------------------
+// • Document Name: ${document.DocumentName || document.name}
+// • Upload Date: ${document.uploadTime}
+// • Document Size: ${document.size}
+// • Analysis Status: ${document.status}
+// • Download Date: ${new Date().toLocaleString()}
+
+// AI Analysis Summary:
+// ------------------
+// ${document.summary}
+
+// ${document.Dates && document.Dates.length > 0 ? `
+// Important Dates & Deadlines:
+// ---------------------------
+// ${document.Dates.map((date, index) => `• ${typeof date === 'string' ? date : JSON.stringify(date)}`).join('\n')}
+// ` : ''}
+
+// ${document.entites && document.entites.length > 0 ? `
+// Key Entities & Terms:
+// --------------------
+// ${document.entites.map((entity, index) => `• ${typeof entity === 'string' ? entity : JSON.stringify(entity)}`).join('\n')}
+// ` : ''}
+
+// ${document.events && document.events.length > 0 ? `
+// Timeline & Events:
+// -----------------
+// ${document.events.map((event, index) => `• ${typeof event === 'string' ? event : JSON.stringify(event)}`).join('\n')}
+// ` : ''}
+
+// Document Metadata:
+// ----------------
+// • Document ID: ${document._id}
+// • Created At: ${new Date(document.createdAt).toLocaleString()}
+// • Document Type: ${document.type}
+// • Analysis Status: ${document.status}
+
+// ---
+// Generated by LegalAI Document Analyzer
+// For inquiries or support, contact your legal advisor.
+// This analysis is provided for informational purposes only and does not constitute legal advice.
+//       `.trim();
+
+//       // Create a blob with the content
+//       const blob = new Blob([downloadContent], { 
+//         type: 'text/plain;charset=utf-8' 
+//       });
+      
+//       // Create a download URL
+//       const url = window.URL.createObjectURL(blob);
+//       const link = document.createElement('a');
+//       link.href = url;
+      
+//       // Set the filename
+//       const fileName = `${(document.DocumentName || document.name).replace('.pdf', '')}_analysis_report.txt`;
+//       link.download = fileName;
+      
+//       // Trigger the download
+//       document.body.appendChild(link);
+//       link.click();
+//       document.body.removeChild(link);
+      
+//       // Clean up the URL object
+//       window.URL.revokeObjectURL(url);
+      
+//       console.log(`✅ Document analysis downloaded successfully: ${fileName}`);
+      
+//       // Show success message
+//       alert(`Document analysis report downloaded successfully as "${fileName}"`);
+      
+//     } catch (error) {
+//       console.error('❌ Error downloading document analysis:', error);
+//       alert('Failed to download document analysis. Please try again.');
+//     }
+//   };
+
+const handleDownload = async (doc) => {
+  try {
+    console.log("Starting download for document:", doc);
+    
+    // Create a comprehensive document report
+    const downloadContent = `
+LEGAL DOCUMENT ANALYSIS REPORT
+==============================
+
+Document Information:
+-------------------
+• Document Name: ${doc.DocumentName || doc.name}
+• Upload Date: ${doc.uploadTime}
+• Document Size: ${doc.size}
+• Analysis Status: ${doc.status}
+• Download Date: ${new Date().toLocaleString()}
+
+AI Analysis Summary:
+------------------
+${doc.summary}
+
+${doc.Dates && doc.Dates.length > 0 ? `
+Important Dates & Deadlines:
+---------------------------
+${doc.Dates.map((date, index) => `• ${typeof date === 'string' ? date : JSON.stringify(date)}`).join('\n')}
+` : ''}
+
+${doc.entites && doc.entites.length > 0 ? `
+Key Entities & Terms:
+--------------------
+${doc.entites.map((entity, index) => `• ${typeof entity === 'string' ? entity : JSON.stringify(entity)}`).join('\n')}
+` : ''}
+
+${doc.events && doc.events.length > 0 ? `
+Timeline & Events:
+-----------------
+${doc.events.map((event, index) => `• ${typeof event === 'string' ? event : JSON.stringify(event)}`).join('\n')}
+` : ''}
+
+Document Metadata:
+----------------
+• Document ID: ${doc._id}
+• Created At: ${new Date(doc.createdAt).toLocaleString()}
+• Document Type: ${doc.type}
+• Analysis Status: ${doc.status}
+
+---
+Generated by LegalAI Document Analyzer
+For inquiries or support, contact your legal advisor.
+This analysis is provided for informational purposes only and does not constitute legal advice.
+    `.trim();
+
+    // Create a blob with the content
+    const blob = new Blob([downloadContent], { 
+      type: 'text/plain;charset=utf-8' 
+    });
+    
+    // Create a download URL
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Set the filename
+    const fileName = `${(doc.DocumentName || doc.name).replace('.pdf', '')}_analysis_report.txt`;
+    link.download = fileName;
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the URL object
+    window.URL.revokeObjectURL(url);
+    
+    console.log(`✅ Document analysis downloaded successfully: ${fileName}`);
+    
+    // Show success message
+    alert(`Document analysis report downloaded successfully as "${fileName}"`);
+    
+  } catch (error) {
+    console.error('❌ Error downloading document analysis:', error);
+    alert('Failed to download document analysis. Please try again.');
+  }
+};
+
+  // Alternative: Download as PDF (more advanced)
+  const handleDownloadAsPDF = async (document) => {
+    try {
+      // This would require a PDF generation library like jsPDF
+      // For now, we'll use the text version and suggest PDF as future enhancement
+      alert('PDF download feature coming soon! Using text format for now.');
+      await handleDownload(document);
+    } catch (error) {
+      console.error('Error preparing PDF download:', error);
+      alert('PDF download not available. Using text format instead.');
+      await handleDownload(document);
+    }
   };
 
   // Sort documents based on sortConfig
@@ -1315,16 +1422,6 @@ const Yourdocumentspage = () => {
         },
       },
     });
-  };
-
-  const handleDownload = async (documentId, documentName) => {
-    try {
-      alert(`Downloading ${documentName}`);
-      console.log(`Would download document from path for: ${documentName}`);
-    } catch (error) {
-      console.error("Error downloading document:", error);
-      alert("Failed to download document");
-    }
   };
 
   const handleViewCalendar = () => {
@@ -1639,13 +1736,11 @@ const Yourdocumentspage = () => {
                     <span>Chat</span>
                   </button>
                   <button
-                    onClick={() =>
-                      handleDownload(doc._id, doc.DocumentName || doc.name)
-                    }
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-700 font-medium text-sm transition duration-200"
+                    onClick={() => handleDownload(doc)}
+                    className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium text-sm transition duration-200"
                   >
                     <FaDownload className="h-4 w-4" />
-                    <span>Download</span>
+                    <span>Download Analysis</span>
                   </button>
                 </div>
               </div>
