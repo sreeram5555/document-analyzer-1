@@ -1,7 +1,9 @@
 
 import React, { useState } from "react";
 import { FaCloudUploadAlt, FaRobot, FaComments, FaTimes } from "react-icons/fa";
+// import "../stylesheets/Secondpage.css";
 import "../stylesheets/Secondpage.css";
+
 import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
