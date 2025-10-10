@@ -83,15 +83,22 @@ export const getUserData = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-export const getUpcomingEvents = async (req, res) => {
 
-     ML_AGENT_URL_IS=process.env.ML_AGENT_URL;
+export const getUpcomingEvents = async (req, res) => {
     try {
+        // ✅ Correct way to declare and assign environment variable
+        const ML_AGENT_URL_IS = process.env.ML_AGENT_URL;
+        
         const userId = req.user._id.toString();
-        console.log(userId);
+        console.log("User ID:", userId);
+        console.log("ML Agent URL:", ML_AGENT_URL_IS);
+        
         const eventsUrl = `${ML_AGENT_URL_IS}/events/${userId}`;
+        console.log("Events URL:", eventsUrl);
+        
         const response = await axios.get(eventsUrl);
-        console.log(response)
+        console.log("ML Agent Response:", response.data);
+        
         res.status(200).json({ success: true, events: response.data });
     } catch (error) {
         console.error('Error fetching upcoming events:', error.response ? error.response.data : error.message);
@@ -101,3 +108,22 @@ export const getUpcomingEvents = async (req, res) => {
         });
     }
 };
+
+// export const getUpcomingEvents = async (req, res) => {
+
+//      ML_AGENT_URL_IS=process.env.ML_AGENT_URL;
+//     try {
+//         const userId = req.user._id.toString();
+//         console.log(userId);
+//         const eventsUrl = `${ML_AGENT_URL_IS}/events/${userId}`;
+//         const response = await axios.get(eventsUrl);
+//         console.log(response)
+//         res.status(200).json({ success: true, events: response.data });
+//     } catch (error) {
+//         console.error('Error fetching upcoming events:', error.response ? error.response.data : error.message);
+//         res.status(500).json({ 
+//             success: false, 
+//             message: 'Failed to fetch upcoming events from the analysis service.' 
+//         });
+//     }
+// };
