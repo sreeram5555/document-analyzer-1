@@ -91,6 +91,7 @@ export const getUpcomingEvents = async (req, res) => {
         console.log(userId);
         const eventsUrl = `${ML_AGENT_URL_IS}/events/${userId}`;
         const response = await axios.get(eventsUrl);
+        console.log(response)
         res.status(200).json({ success: true, events: response.data });
     } catch (error) {
         console.error('Error fetching upcoming events:', error.response ? error.response.data : error.message);
