@@ -35,59 +35,193 @@ const Eventspage = () => {
   };
 
   // Fetch events from backend
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // const fetchEvents = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
       
-      const authToken = getAuthToken();
-      if (!authToken) {
-        setError('Authentication token not found');
-        setLoading(false);
-        return;
-      }
+  //     const authToken = getAuthToken();
+  //     if (!authToken) {
+  //       setError('Authentication token not found');
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      console.log('Fetching events from backend...');
+  //     console.log('Fetching events from backend...');
       
-      const response = await fetch('https://document-analyzer-1-backend.onrender.com/api/user/events', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  //     const response = await fetch('https://document-analyzer-1-backend.onrender.com/api/user/events', {
+  //       headers: {
+  //         'Authorization': `Bearer ${authToken}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
 
-      console.log('Events response status:', response.status);
+  //     console.log('Events response status:', response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Events data received:', data);
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log('Events data received:', data);
         
-        if (data.success && Array.isArray(data.events)) {
-          // Transform backend events to frontend format
-          const formattedEvents = data.events.map((event, index) => ({
-            id: event._id || `event-${index}`,
-            document: event.document || "Document",
-            title: event.title || event.description || "Event",
-            date: event.date || new Date().toISOString().split('T')[0],
-            type: new Date(event.date) >= new Date() ? "upcoming" : "past",
-            category: event.type || "general"
-          }));
-          setEvents(formattedEvents);
-        } else {
-          setEvents([]);
-          setError('No events data found');
+  //       if (data.success && Array.isArray(data.events)) {
+  //         // Transform backend events to frontend format
+  //         const formattedEvents = data.events.map((event, index) => ({
+  //           id: event._id || `event-${index}`,
+  //           document: event.document || "Document",
+  //           title: event.title || event.description || "Event",
+  //           date: event.date || new Date().toISOString().split('T')[0],
+  //           type: new Date(event.date) >= new Date() ? "upcoming" : "past",
+  //           category: event.type || "general"
+  //         }));
+  //         setEvents(formattedEvents);
+  //       } else {
+  //         setEvents([]);
+  //         setError('No events data found');
+  //       }
+  //     } else {
+  //       throw new Error(`Failed to fetch events: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching events:', error);
+  //     setError('Failed to load events from server');
+  //     setEvents([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+//   const fetchEvents = async () => {
+//     try {
+//         setLoading(true);
+//         const authToken = getAuthToken();
+        
+//         if (!authToken) {
+//             console.error("No authentication token");
+//             setLoading(false);
+//             return;
+//         }
+
+//         const response = await fetch(
+//             "https://document-analyzer-1-backend.onrender.com/api/user/events",
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${authToken}`,
+//                     "Content-Type": "application/json",
+//                 },
+//             }
+//         );
+
+//         console.log("Events response status:", response.status);
+
+//         if (response.ok) {
+//             const data = await response.json();
+//             if (data.success) {
+//                 setEvents(data.events || []);
+//                 console.log("Events loaded successfully:", data.events);
+//             } else {
+//                 throw new Error(data.message || "Failed to fetch events");
+//             }
+//         } else {
+//             // Handle different HTTP status codes
+//             if (response.status === 401) {
+//                 handleTokenExpired();
+//                 return;
+//             } else if (response.status === 500) {
+//                 throw new Error("Server error - please try again later");
+//             } else {
+//                 throw new Error(`Failed to fetch events: ${response.status}`);
+//             }
+//         }
+//     } catch (error) {
+//         console.error("Error fetching events:", error);
+//         setEvents([]); // Set empty array as fallback
+//         // Optional: Show user-friendly error message
+//         // alert("Unable to load events at this time. Please try again later.");
+//     } finally {
+//         setLoading(false);
+//     }
+// };
+const fetchEvents = async () => {
+    try {
+        setLoading(true);
+        const authToken = getAuthToken();
+        
+        if (!authToken) {
+            console.error("No authentication token");
+            setLoading(false);
+            return;
         }
-      } else {
-        throw new Error(`Failed to fetch events: ${response.status}`);
-      }
+
+        const response = await fetch(
+            "https://document-analyzer-1-backend.onrender.com/api/user/events",
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        console.log("Events response status:", response.status);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Raw events data:", data);
+            
+            if (data.success) {
+                // Transform the backend data to match frontend expectations
+                const transformedEvents = data.events.map((event, index) => {
+                    const eventDate = new Date(event.event_date || event.date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    return {
+                        id: event.date_id || `event-${index}`,
+                        document: event.file_name || event.document || "Document",
+                        title: event.event_description || event.title || event.description || "Event",
+                        date: event.event_date || event.date,
+                        type: eventDate >= today ? "upcoming" : "past",
+                        category: getEventCategory(event.event_description || event.title || "")
+                    };
+                });
+                
+                console.log("Transformed events:", transformedEvents);
+                setEvents(transformedEvents);
+            } else {
+                throw new Error(data.message || "Failed to fetch events");
+            }
+        } else {
+            if (response.status === 401) {
+                handleTokenExpired();
+                return;
+            } else {
+                throw new Error(`Failed to fetch events: ${response.status}`);
+            }
+        }
     } catch (error) {
-      console.error('Error fetching events:', error);
-      setError('Failed to load events from server');
-      setEvents([]);
+        console.error("Error fetching events:", error);
+        setEvents([]);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+// Helper function to determine event category based on description
+const getEventCategory = (description) => {
+    const desc = description.toLowerCase();
+    if (desc.includes('departure') || desc.includes('arrival') || desc.includes('travel')) 
+        return 'travel';
+    if (desc.includes('renewal')) return 'renewal';
+    if (desc.includes('expiration') || desc.includes('expiry')) return 'expiration';
+    if (desc.includes('deadline')) return 'deadline';
+    if (desc.includes('payment') || desc.includes('fee')) return 'payment';
+    if (desc.includes('meeting') || desc.includes('appointment')) return 'meeting';
+    return 'general';
+};
+
+const handleTokenExpired = () => {
+    localStorage.removeItem("token");
+    alert("Your session has expired. Please login again.");
+    navigate("/login");
+};
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -118,14 +252,40 @@ const Eventspage = () => {
     navigate('/documents');
   };
 
-  const formatDate = (dateString) => {
+  // const formatDate = (dateString) => {
+  //   try {
+  //     const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  //     return new Date(dateString).toLocaleDateString(undefined, options);
+  //   } catch (error) {
+  //     return "Invalid date";
+  //   }
+  // };
+
+const formatDate = (dateString) => {
     try {
-      const options = { month: 'long', day: 'numeric', year: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+        // Handle different date formats
+        let date;
+        if (dateString.includes('-')) {
+            // Handle ISO format like '2025-10-11'
+            date = new Date(dateString);
+        } else {
+            // Handle other formats
+            date = new Date(dateString);
+        }
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid date:', dateString);
+            return "Date not specified";
+        }
+        
+        const options = { month: 'long', day: 'numeric', year: 'numeric' };
+        return date.toLocaleDateString(undefined, options);
     } catch (error) {
-      return "Invalid date";
+        console.error('Error formatting date:', error);
+        return "Date not specified";
     }
-  };
+};
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -259,18 +419,32 @@ const Eventspage = () => {
     );
   };
 
+  // const getEventCategoryColor = (category) => {
+  //   const colors = {
+  //     review: 'bg-green-100 text-green-800',
+  //     expiration: 'bg-red-100 text-red-800',
+  //     renewal: 'bg-blue-100 text-blue-800',
+  //     enrollment: 'bg-purple-100 text-purple-800',
+  //     payment: 'bg-yellow-100 text-yellow-800',
+  //     general: 'bg-gray-100 text-gray-800'
+  //   };
+  //   return colors[category] || 'bg-gray-100 text-gray-800';
+  // };
+
   const getEventCategoryColor = (category) => {
     const colors = {
-      review: 'bg-green-100 text-green-800',
-      expiration: 'bg-red-100 text-red-800',
-      renewal: 'bg-blue-100 text-blue-800',
-      enrollment: 'bg-purple-100 text-purple-800',
-      payment: 'bg-yellow-100 text-yellow-800',
-      general: 'bg-gray-100 text-gray-800'
+        review: 'bg-green-100 text-green-800',
+        expiration: 'bg-red-100 text-red-800',
+        renewal: 'bg-blue-100 text-blue-800',
+        enrollment: 'bg-purple-100 text-purple-800',
+        payment: 'bg-yellow-100 text-yellow-800',
+        travel: 'bg-indigo-100 text-indigo-800',
+        meeting: 'bg-pink-100 text-pink-800',
+        deadline: 'bg-orange-100 text-orange-800',
+        general: 'bg-gray-100 text-gray-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
-  };
-
+};
   const handleRetry = () => {
     fetchEvents();
   };
