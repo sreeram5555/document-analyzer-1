@@ -56,6 +56,7 @@ export const uploadDocuments = (req, res) => {
 
 
 export const getDocumentChatHistory = async (req, res) => {
+
     try {
         const { documentId } = req.params;
         const user = await userModel.findById(req.user.id);
@@ -83,10 +84,12 @@ export const getUserData = async (req, res) => {
     }
 };
 export const getUpcomingEvents = async (req, res) => {
+
+     ML_AGENT_URL_IS=process.env.ML_AGENT_URL;
     try {
         const userId = req.user._id.toString();
         console.log(userId);
-        const eventsUrl = `${ML_AGENT_URL}/events/${userId}`;
+        const eventsUrl = `${ML_AGENT_URL_IS}/events/${userId}`;
         const response = await axios.get(eventsUrl);
         res.status(200).json({ success: true, events: response.data });
     } catch (error) {
