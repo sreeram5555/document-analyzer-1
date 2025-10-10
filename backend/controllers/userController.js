@@ -197,4 +197,3 @@ export const getUpcomingEvents = async (req, res) => {
 //     }
 // };
 
-s
