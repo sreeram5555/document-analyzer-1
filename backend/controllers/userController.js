@@ -85,14 +85,80 @@ export const getUserData = async (req, res) => {
     }
 };
 
+// export const getUpcomingEvents = async (req, res) => {
+//     try {
+//         // ✅ Correct way to get environment variable
+//         const ML_AGENT_URL = process.env.ML_AGENT_URL;
+        
+//         console.log("ML_AGENT_URL:", ML_AGENT_URL);
+        
+//         // Check if environment variable exists
+//         if (!ML_AGENT_URL) {
+//             console.error("ML_AGENT_URL environment variable is not set");
+//             return res.status(500).json({
+//                 success: false,
+//                 message: "ML service configuration error"
+//             });
+//         }
+
+//         const userId = req.user._id.toString();
+//         console.log("Fetching events for user ID:", userId);
+        
+//         const eventsUrl = `${ML_AGENT_URL}/events/${userId}`;
+//         console.log("Calling ML service URL:", eventsUrl);
+
+//         const response = await axios.get(eventsUrl, {
+//             timeout: 10000 // 10 second timeout
+//         });
+        
+//         console.log("ML service response received:", response.data);
+        
+//         res.status(200).json({ 
+//             success: true, 
+//             events: response.data 
+//         });
+        
+//     } catch (error) {
+//         console.error('Error fetching upcoming events:');
+        
+//         if (error.code === 'ENOTFOUND') {
+//             console.error('Network error - cannot reach ML service');
+//             return res.status(503).json({
+//                 success: false,
+//                 message: 'ML analysis service is currently unavailable'
+//             });
+//         }
+        
+//         if (error.response) {
+//             // ML service returned an error
+//             console.error('ML service error:', error.response.status, error.response.data);
+//             return res.status(502).json({
+//                 success: false,
+//                 message: 'ML service returned an error'
+//             });
+//         }
+        
+//         if (error.request) {
+//             // Request was made but no response received
+//             console.error('No response from ML service:', error.request);
+//             return res.status(504).json({
+//                 success: false,
+//                 message: 'ML service timeout - no response received'
+//             });
+//         }
+        
+//         // Other errors
+//         console.error('Unexpected error:', error.message);
+//         res.status(500).json({ 
+//             success: false, 
+//             message: 'Failed to fetch upcoming events' 
+//         });
+//     }
+// };
 export const getUpcomingEvents = async (req, res) => {
     try {
-        // ✅ Correct way to get environment variable
         const ML_AGENT_URL = process.env.ML_AGENT_URL;
         
-        console.log("ML_AGENT_URL:", ML_AGENT_URL);
-        
-        // Check if environment variable exists
         if (!ML_AGENT_URL) {
             console.error("ML_AGENT_URL environment variable is not set");
             return res.status(500).json({
@@ -102,59 +168,57 @@ export const getUpcomingEvents = async (req, res) => {
         }
 
         const userId = req.user._id.toString();
-        console.log("Fetching events for user ID:", userId);
-        
         const eventsUrl = `${ML_AGENT_URL}/events/${userId}`;
-        console.log("Calling ML service URL:", eventsUrl);
 
         const response = await axios.get(eventsUrl, {
-            timeout: 10000 // 10 second timeout
+            timeout: 10000
         });
         
-        console.log("ML service response received:", response.data);
+        // Transform and deduplicate events
+        const eventMap = new Map();
+        
+        response.data.forEach(event => {
+            const key = `${event.event_date}-${event.event_description}`;
+            if (!eventMap.has(key)) {
+                eventMap.set(key, {
+                    title: event.event_description,
+                    date: event.event_date,
+                    document: event.file_name,
+                    type: getEventType(event.event_description)
+                });
+            }
+        });
+
+        const transformedEvents = Array.from(eventMap.values());
+        
+        console.log(`Transformed ${response.data.length} events to ${transformedEvents.length} unique events`);
         
         res.status(200).json({ 
             success: true, 
-            events: response.data 
+            events: transformedEvents 
         });
         
     } catch (error) {
-        console.error('Error fetching upcoming events:');
+        console.error('Error fetching upcoming events:', error.message);
         
-        if (error.code === 'ENOTFOUND') {
-            console.error('Network error - cannot reach ML service');
-            return res.status(503).json({
-                success: false,
-                message: 'ML analysis service is currently unavailable'
-            });
-        }
-        
-        if (error.response) {
-            // ML service returned an error
-            console.error('ML service error:', error.response.status, error.response.data);
-            return res.status(502).json({
-                success: false,
-                message: 'ML service returned an error'
-            });
-        }
-        
-        if (error.request) {
-            // Request was made but no response received
-            console.error('No response from ML service:', error.request);
-            return res.status(504).json({
-                success: false,
-                message: 'ML service timeout - no response received'
-            });
-        }
-        
-        // Other errors
-        console.error('Unexpected error:', error.message);
         res.status(500).json({ 
             success: false, 
-            message: 'Failed to fetch upcoming events' 
+            message: 'Failed to fetch upcoming events: ' + error.message
         });
     }
 };
+
+// Helper function to determine event type based on description
+function getEventType(description) {
+    const desc = description.toLowerCase();
+    if (desc.includes('departure')) return 'travel';
+    if (desc.includes('arrival')) return 'travel';
+    if (desc.includes('renewal')) return 'renewal';
+    if (desc.includes('expiration')) return 'expiration';
+    if (desc.includes('deadline')) return 'deadline';
+    return 'event';
+}
+
 
 // export const getUpcomingEvents = async (req, res) => {
 //     try {
