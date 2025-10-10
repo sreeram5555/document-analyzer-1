@@ -85,6 +85,7 @@ export const getUserData = async (req, res) => {
 export const getUpcomingEvents = async (req, res) => {
     try {
         const userId = req.user._id.toString();
+        console.log(userId);
         const eventsUrl = `${ML_AGENT_URL}/events/${userId}`;
         const response = await axios.get(eventsUrl);
         res.status(200).json({ success: true, events: response.data });
