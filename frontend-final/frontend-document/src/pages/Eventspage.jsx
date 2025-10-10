@@ -1,10 +1,8 @@
-
-
 import React, { useState, useEffect } from "react";
-import { 
-  FaCalendarAlt, 
-  FaFilePdf, 
-  FaCheck, 
+import {
+  FaCalendarAlt,
+  FaFilePdf,
+  FaCheck,
   FaClock,
   FaChevronLeft,
   FaChevronRight,
@@ -13,9 +11,9 @@ import {
   FaFolderOpen,
   FaArrowLeft,
   FaSpinner,
-  FaExclamationTriangle
+  FaExclamationTriangle,
 } from "react-icons/fa";
-import '../stylesheets/eventspage.css'
+import "../stylesheets/eventspage.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Authcontext";
 
@@ -23,7 +21,7 @@ const Eventspage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, token } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedView, setSelectedView] = useState('list');
+  const [selectedView, setSelectedView] = useState("list");
   const [completedEvents, setCompletedEvents] = useState(new Set());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,212 +29,119 @@ const Eventspage = () => {
 
   // Get token from localStorage as fallback
   const getAuthToken = () => {
-    return token || localStorage.getItem('token');
+    return token || localStorage.getItem("token");
   };
 
-  // Fetch events from backend
-  // const fetchEvents = async () => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-      
-  //     const authToken = getAuthToken();
-  //     if (!authToken) {
-  //       setError('Authentication token not found');
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     console.log('Fetching events from backend...');
-      
-  //     const response = await fetch('https://document-analyzer-1-backend.onrender.com/api/user/events', {
-  //       headers: {
-  //         'Authorization': `Bearer ${authToken}`,
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });
-
-  //     console.log('Events response status:', response.status);
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log('Events data received:', data);
-        
-  //       if (data.success && Array.isArray(data.events)) {
-  //         // Transform backend events to frontend format
-  //         const formattedEvents = data.events.map((event, index) => ({
-  //           id: event._id || `event-${index}`,
-  //           document: event.document || "Document",
-  //           title: event.title || event.description || "Event",
-  //           date: event.date || new Date().toISOString().split('T')[0],
-  //           type: new Date(event.date) >= new Date() ? "upcoming" : "past",
-  //           category: event.type || "general"
-  //         }));
-  //         setEvents(formattedEvents);
-  //       } else {
-  //         setEvents([]);
-  //         setError('No events data found');
-  //       }
-  //     } else {
-  //       throw new Error(`Failed to fetch events: ${response.status}`);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching events:', error);
-  //     setError('Failed to load events from server');
-  //     setEvents([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-//   const fetchEvents = async () => {
-//     try {
-//         setLoading(true);
-//         const authToken = getAuthToken();
-        
-//         if (!authToken) {
-//             console.error("No authentication token");
-//             setLoading(false);
-//             return;
-//         }
-
-//         const response = await fetch(
-//             "https://document-analyzer-1-backend.onrender.com/api/user/events",
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${authToken}`,
-//                     "Content-Type": "application/json",
-//                 },
-//             }
-//         );
-
-//         console.log("Events response status:", response.status);
-
-//         if (response.ok) {
-//             const data = await response.json();
-//             if (data.success) {
-//                 setEvents(data.events || []);
-//                 console.log("Events loaded successfully:", data.events);
-//             } else {
-//                 throw new Error(data.message || "Failed to fetch events");
-//             }
-//         } else {
-//             // Handle different HTTP status codes
-//             if (response.status === 401) {
-//                 handleTokenExpired();
-//                 return;
-//             } else if (response.status === 500) {
-//                 throw new Error("Server error - please try again later");
-//             } else {
-//                 throw new Error(`Failed to fetch events: ${response.status}`);
-//             }
-//         }
-//     } catch (error) {
-//         console.error("Error fetching events:", error);
-//         setEvents([]); // Set empty array as fallback
-//         // Optional: Show user-friendly error message
-//         // alert("Unable to load events at this time. Please try again later.");
-//     } finally {
-//         setLoading(false);
-//     }
-// };
-const fetchEvents = async () => {
+  const fetchEvents = async () => {
     try {
-        setLoading(true);
-        const authToken = getAuthToken();
-        
-        if (!authToken) {
-            console.error("No authentication token");
-            setLoading(false);
-            return;
-        }
+      setLoading(true);
+      const authToken = getAuthToken();
 
-        const response = await fetch(
-            "https://document-analyzer-1-backend.onrender.com/api/user/events",
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        console.log("Events response status:", response.status);
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log("Raw events data:", data);
-            
-            if (data.success) {
-                // Transform the backend data to match frontend expectations
-                const transformedEvents = data.events.map((event, index) => {
-                    const eventDate = new Date(event.event_date || event.date);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    
-                    return {
-                        id: event.date_id || `event-${index}`,
-                        document: event.file_name || event.document || "Document",
-                        title: event.event_description || event.title || event.description || "Event",
-                        date: event.event_date || event.date,
-                        type: eventDate >= today ? "upcoming" : "past",
-                        category: getEventCategory(event.event_description || event.title || "")
-                    };
-                });
-                
-                console.log("Transformed events:", transformedEvents);
-                setEvents(transformedEvents);
-            } else {
-                throw new Error(data.message || "Failed to fetch events");
-            }
-        } else {
-            if (response.status === 401) {
-                handleTokenExpired();
-                return;
-            } else {
-                throw new Error(`Failed to fetch events: ${response.status}`);
-            }
-        }
-    } catch (error) {
-        console.error("Error fetching events:", error);
-        setEvents([]);
-    } finally {
+      if (!authToken) {
+        console.error("No authentication token");
         setLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        "https://document-analyzer-1-backend.onrender.com/api/user/events",
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Events response status:", response.status);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Raw events data:", data);
+
+        if (data.success) {
+          // Transform the backend data to match frontend expectations
+          const transformedEvents = data.events.map((event, index) => {
+            const eventDate = new Date(event.event_date || event.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            return {
+              id: event.date_id || `event-${index}`,
+              document: event.file_name || event.document || "Document",
+              title:
+                event.event_description ||
+                event.title ||
+                event.description ||
+                "Event",
+              date: event.event_date || event.date,
+              type: eventDate >= today ? "upcoming" : "past",
+              category: getEventCategory(
+                event.event_description || event.title || ""
+              ),
+            };
+          });
+
+          console.log("Transformed events:", transformedEvents);
+          setEvents(transformedEvents);
+        } else {
+          throw new Error(data.message || "Failed to fetch events");
+        }
+      } else {
+        if (response.status === 401) {
+          handleTokenExpired();
+          return;
+        } else {
+          throw new Error(`Failed to fetch events: ${response.status}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
     }
-};
+  };
 
-// Helper function to determine event category based on description
-const getEventCategory = (description) => {
+  // Helper function to determine event category based on description
+  const getEventCategory = (description) => {
     const desc = description.toLowerCase();
-    if (desc.includes('departure') || desc.includes('arrival') || desc.includes('travel')) 
-        return 'travel';
-    if (desc.includes('renewal')) return 'renewal';
-    if (desc.includes('expiration') || desc.includes('expiry')) return 'expiration';
-    if (desc.includes('deadline')) return 'deadline';
-    if (desc.includes('payment') || desc.includes('fee')) return 'payment';
-    if (desc.includes('meeting') || desc.includes('appointment')) return 'meeting';
-    return 'general';
-};
+    if (
+      desc.includes("departure") ||
+      desc.includes("arrival") ||
+      desc.includes("travel")
+    )
+      return "travel";
+    if (desc.includes("renewal")) return "renewal";
+    if (desc.includes("expiration") || desc.includes("expiry"))
+      return "expiration";
+    if (desc.includes("deadline")) return "deadline";
+    if (desc.includes("payment") || desc.includes("fee")) return "payment";
+    if (desc.includes("meeting") || desc.includes("appointment"))
+      return "meeting";
+    return "general";
+  };
 
-const handleTokenExpired = () => {
+  const handleTokenExpired = () => {
     localStorage.removeItem("token");
     alert("Your session has expired. Please login again.");
     navigate("/login");
-};
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchEvents();
     } else {
       setLoading(false);
-      setError('Please login to view events');
+      setError("Please login to view events");
     }
   }, [isAuthenticated]);
 
-  const upcomingEvents = events.filter(event => event.type === 'upcoming');
-  const pastEvents = events.filter(event => event.type === 'past');
+  const upcomingEvents = events.filter((event) => event.type === "upcoming");
+  const pastEvents = events.filter((event) => event.type === "past");
 
   const toggleEventCompletion = (eventId) => {
-    setCompletedEvents(prev => {
+    setCompletedEvents((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(eventId)) {
         newSet.delete(eventId);
@@ -249,7 +154,7 @@ const handleTokenExpired = () => {
 
   const handleGoToDocuments = () => {
     console.log("🔄 Navigating to documents page...");
-    navigate('/documents');
+    navigate("/documents");
   };
 
   // const formatDate = (dateString) => {
@@ -261,31 +166,31 @@ const handleTokenExpired = () => {
   //   }
   // };
 
-const formatDate = (dateString) => {
+  const formatDate = (dateString) => {
     try {
-        // Handle different date formats
-        let date;
-        if (dateString.includes('-')) {
-            // Handle ISO format like '2025-10-11'
-            date = new Date(dateString);
-        } else {
-            // Handle other formats
-            date = new Date(dateString);
-        }
-        
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            console.warn('Invalid date:', dateString);
-            return "Date not specified";
-        }
-        
-        const options = { month: 'long', day: 'numeric', year: 'numeric' };
-        return date.toLocaleDateString(undefined, options);
-    } catch (error) {
-        console.error('Error formatting date:', error);
+      // Handle different date formats
+      let date;
+      if (dateString.includes("-")) {
+        // Handle ISO format like '2025-10-11'
+        date = new Date(dateString);
+      } else {
+        // Handle other formats
+        date = new Date(dateString);
+      }
+
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn("Invalid date:", dateString);
         return "Date not specified";
+      }
+
+      const options = { month: "long", day: "numeric", year: "numeric" };
+      return date.toLocaleDateString(undefined, options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Date not specified";
     }
-};
+  };
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -296,7 +201,7 @@ const formatDate = (dateString) => {
   };
 
   const navigateMonth = (direction) => {
-    setCurrentDate(prev => {
+    setCurrentDate((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
@@ -304,7 +209,7 @@ const formatDate = (dateString) => {
   };
 
   const getEventsForDate = (date) => {
-    return events.filter(event => {
+    return events.filter((event) => {
       try {
         const eventDate = new Date(event.date);
         return eventDate.toDateString() === date.toDateString();
@@ -323,48 +228,59 @@ const formatDate = (dateString) => {
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
-    const monthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    
+    const monthYear = currentDate.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="h-24 p-1 border"></div>);
     }
-    
+
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
       const dayEvents = getEventsForDate(date);
       const isCurrentDay = isToday(date);
-      
+
       days.push(
-        <div 
-          key={day} 
+        <div
+          key={day}
           className={`h-24 p-1 border calendar-day ${
-            dayEvents.length > 0 ? 'has-event' : ''
-          } ${isCurrentDay ? 'current-day' : ''}`}
+            dayEvents.length > 0 ? "has-event" : ""
+          } ${isCurrentDay ? "current-day" : ""}`}
         >
           <div className="flex justify-between items-start">
-            <span className={`text-sm font-medium ${
-              isCurrentDay ? 'text-white' : 'text-gray-900'
-            }`}>
+            <span
+              className={`text-sm font-medium ${
+                isCurrentDay ? "text-white" : "text-gray-900"
+              }`}
+            >
               {day}
             </span>
             {dayEvents.length > 0 && (
-              <span className={`w-2 h-2 rounded-full ${
-                isCurrentDay ? 'bg-white' : 'bg-blue-400'
-              }`}></span>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isCurrentDay ? "bg-white" : "bg-blue-400"
+                }`}
+              ></span>
             )}
           </div>
           <div className="mt-1 space-y-1 max-h-16 overflow-y-auto">
-            {dayEvents.slice(0, 2).map(event => (
-              <div 
-                key={event.id} 
+            {dayEvents.slice(0, 2).map((event) => (
+              <div
+                key={event.id}
                 className="text-xs p-1 bg-blue-100 text-blue-800 rounded truncate"
                 title={event.title}
               >
-                {event.document.split('.')[0]}
+                {event.document.split(".")[0]}
               </div>
             ))}
             {dayEvents.length > 2 && (
@@ -376,26 +292,26 @@ const formatDate = (dateString) => {
         </div>
       );
     }
-    
+
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">{monthYear}</h3>
           <div className="flex items-center space-x-2">
-            <button 
+            <button
               onClick={() => navigateMonth(-1)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FaChevronLeft className="w-4 h-4 text-gray-600" />
             </button>
-            <button 
+            <button
               onClick={() => setCurrentDate(new Date())}
               className="px-3 py-1 text-sm bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
             >
               Today
             </button>
-            <button 
+            <button
               onClick={() => navigateMonth(1)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -407,7 +323,7 @@ const formatDate = (dateString) => {
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
           {/* Day headers */}
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div key={day} className="bg-gray-50 p-3 text-center">
               <span className="text-sm font-medium text-gray-700">{day}</span>
             </div>
@@ -433,18 +349,18 @@ const formatDate = (dateString) => {
 
   const getEventCategoryColor = (category) => {
     const colors = {
-        review: 'bg-green-100 text-green-800',
-        expiration: 'bg-red-100 text-red-800',
-        renewal: 'bg-blue-100 text-blue-800',
-        enrollment: 'bg-purple-100 text-purple-800',
-        payment: 'bg-yellow-100 text-yellow-800',
-        travel: 'bg-indigo-100 text-indigo-800',
-        meeting: 'bg-pink-100 text-pink-800',
-        deadline: 'bg-orange-100 text-orange-800',
-        general: 'bg-gray-100 text-gray-800'
+      review: "bg-green-100 text-green-800",
+      expiration: "bg-red-100 text-red-800",
+      renewal: "bg-blue-100 text-blue-800",
+      enrollment: "bg-purple-100 text-purple-800",
+      payment: "bg-yellow-100 text-yellow-800",
+      travel: "bg-indigo-100 text-indigo-800",
+      meeting: "bg-pink-100 text-pink-800",
+      deadline: "bg-orange-100 text-orange-800",
+      general: "bg-gray-100 text-gray-800",
     };
-    return colors[category] || 'bg-gray-100 text-gray-800';
-};
+    return colors[category] || "bg-gray-100 text-gray-800";
+  };
   const handleRetry = () => {
     fetchEvents();
   };
@@ -504,27 +420,27 @@ const formatDate = (dateString) => {
         <div className="flex justify-between items-center mb-6">
           <div className="flex space-x-2">
             <button
-              onClick={() => setSelectedView('list')}
+              onClick={() => setSelectedView("list")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                selectedView === 'list' 
-                  ? 'bg-blue-400 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                selectedView === "list"
+                  ? "bg-blue-400 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               }`}
             >
               List View
             </button>
             <button
-              onClick={() => setSelectedView('calendar')}
+              onClick={() => setSelectedView("calendar")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                selectedView === 'calendar' 
-                  ? 'bg-blue-400 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                selectedView === "calendar"
+                  ? "bg-blue-400 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               }`}
             >
               Calendar View
             </button>
           </div>
-          
+
           <div className="flex space-x-2">
             <button
               onClick={handleGoToDocuments}
@@ -533,7 +449,7 @@ const formatDate = (dateString) => {
               <FaArrowLeft className="w-4 h-4" />
               <span>Documents</span>
             </button>
-            
+
             <button className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
               <FaDownload className="w-4 h-4" />
               <span>Export</span>
@@ -541,7 +457,7 @@ const formatDate = (dateString) => {
           </div>
         </div>
 
-        {selectedView === 'list' ? (
+        {selectedView === "list" ? (
           <div className="space-y-8">
             {/* Upcoming Events */}
             <div className="bg-white rounded-lg shadow-sm p-6">
@@ -557,8 +473,11 @@ const formatDate = (dateString) => {
 
               <div className="space-y-4">
                 {upcomingEvents.length > 0 ? (
-                  upcomingEvents.map(event => (
-                    <div key={event.id} className="event-item bg-gray-50 rounded-lg p-4">
+                  upcomingEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="event-item bg-gray-50 rounded-lg p-4"
+                    >
                       <div className="flex items-start space-x-4">
                         <input
                           type="checkbox"
@@ -574,7 +493,11 @@ const formatDate = (dateString) => {
                                 {event.document}
                               </span>
                             </div>
-                            <span className={`px-2 py-1 text-xs rounded-full ${getEventCategoryColor(event.category)}`}>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full ${getEventCategoryColor(
+                                event.category
+                              )}`}
+                            >
                               {event.category}
                             </span>
                           </div>
@@ -608,8 +531,11 @@ const formatDate = (dateString) => {
 
               <div className="space-y-4">
                 {pastEvents.length > 0 ? (
-                  pastEvents.map(event => (
-                    <div key={event.id} className="past-event bg-gray-50 rounded-lg p-4">
+                  pastEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="past-event bg-gray-50 rounded-lg p-4"
+                    >
                       <div className="flex items-start space-x-4">
                         <FaCheck className="w-4 h-4 text-green-500 mt-1" />
                         <div className="flex-1">
@@ -640,10 +566,8 @@ const formatDate = (dateString) => {
         ) : (
           /* Calendar View */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              {renderCalendar()}
-            </div>
-            
+            <div className="lg:col-span-2">{renderCalendar()}</div>
+
             {/* Upcoming Events Sidebar */}
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
@@ -651,13 +575,22 @@ const formatDate = (dateString) => {
                   This Month's Events
                 </h3>
                 <div className="space-y-3">
-                  {upcomingEvents.slice(0, 5).map(event => (
-                    <div key={event.id} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                      <div className={`w-2 h-2 mt-2 rounded-full ${
-                        event.category === 'expiration' ? 'bg-red-400' :
-                        event.category === 'renewal' ? 'bg-blue-400' :
-                        event.category === 'review' ? 'bg-green-400' : 'bg-purple-400'
-                      }`}></div>
+                  {upcomingEvents.slice(0, 5).map((event) => (
+                    <div
+                      key={event.id}
+                      className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg"
+                    >
+                      <div
+                        className={`w-2 h-2 mt-2 rounded-full ${
+                          event.category === "expiration"
+                            ? "bg-red-400"
+                            : event.category === "renewal"
+                            ? "bg-blue-400"
+                            : event.category === "review"
+                            ? "bg-green-400"
+                            : "bg-purple-400"
+                        }`}
+                      ></div>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {event.document}
@@ -683,19 +616,29 @@ const formatDate = (dateString) => {
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Upcoming Events</span>
-                    <span className="font-semibold text-blue-600">{upcomingEvents.length}</span>
+                    <span className="text-sm text-gray-600">
+                      Upcoming Events
+                    </span>
+                    <span className="font-semibold text-blue-600">
+                      {upcomingEvents.length}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Completed Events</span>
-                    <span className="font-semibold text-green-600">{completedEvents.size}</span>
+                    <span className="text-sm text-gray-600">
+                      Completed Events
+                    </span>
+                    <span className="font-semibold text-green-600">
+                      {completedEvents.size}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Past Events</span>
-                    <span className="font-semibold text-gray-600">{pastEvents.length}</span>
+                    <span className="font-semibold text-gray-600">
+                      {pastEvents.length}
+                    </span>
                   </div>
                 </div>
-                
+
                 {/* Quick Navigation to Documents */}
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   <button

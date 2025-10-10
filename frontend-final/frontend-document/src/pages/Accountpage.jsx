@@ -1,126 +1,147 @@
-
 import React, { useState } from "react";
-import { 
-  FaEye, 
-  FaEyeSlash, 
-  FaLock, 
-  FaEnvelope, 
-  FaUser, 
-  FaShieldAlt, 
+import {
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaEnvelope,
+  FaUser,
+  FaShieldAlt,
   FaCreditCard,
   FaArrowLeft,
   FaCheckCircle,
-  FaPaperPlane
+  FaPaperPlane,
 } from "react-icons/fa";
 import { useAuth } from "../context/Authcontext";
-import '../stylesheets/accountpage.css';
+import "../stylesheets/accountpage.css";
 
 const Accountpage = () => {
-  const [activeTab, setActiveTab] = useState('signin'); // 'signin', 'signup', 'forgot', 'reset', 'resend'
+  const [activeTab, setActiveTab] = useState("signin"); // 'signin', 'signup', 'forgot', 'reset', 'resend'
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    resetToken: ''
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    resetToken: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  
+  const [message, setMessage] = useState({ type: "", text: "" });
+
   const { login, isAuthenticated, signup } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
       switch (activeTab) {
-        case 'signin':
+        case "signin":
           console.log("🔄 Starting login process...");
           const loginSuccess = await login(formData.email, formData.password);
-          
+
           if (loginSuccess) {
-            setMessage({ type: 'success', text: 'Successfully signed in! Redirecting...' });
+            setMessage({
+              type: "success",
+              text: "Successfully signed in! Redirecting...",
+            });
             // AuthContext will handle the redirect automatically
           } else {
-            setMessage({ type: 'error', text: 'Invalid email or password. Please try again.' });
+            setMessage({
+              type: "error",
+              text: "Invalid email or password. Please try again.",
+            });
           }
           break;
 
-        case 'signup': 
+        case "signup":
           if (formData.password !== formData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Passwords do not match!' });
+            setMessage({ type: "error", text: "Passwords do not match!" });
             setIsLoading(false);
             return;
           }
 
           console.log("🔄 Starting signup process...");
-          const result = await signup(formData.fullName, formData.email, formData.password);
+          const result = await signup(
+            formData.fullName,
+            formData.email,
+            formData.password
+          );
 
           if (result.success) {
-            setMessage({ type: 'success', text: result.message || 'Account created! Please sign in.' });
-            
+            setMessage({
+              type: "success",
+              text: result.message || "Account created! Please sign in.",
+            });
+
             setTimeout(() => {
-              setActiveTab('signin');
-              setFormData(prev => ({ 
-                ...prev, 
-                fullName: '', 
-                password: '', 
-                confirmPassword: '' 
+              setActiveTab("signin");
+              setFormData((prev) => ({
+                ...prev,
+                fullName: "",
+                password: "",
+                confirmPassword: "",
               }));
             }, 3000);
           } else {
-            setMessage({ type: 'error', text: result.message });
+            setMessage({ type: "error", text: result.message });
           }
           break;
 
-        case 'forgot':
-          console.log('Sending reset email to:', formData.email);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          setMessage({ type: 'success', text: 'Reset instructions sent to your email!' });
-          setActiveTab('reset');
+        case "forgot":
+          console.log("Sending reset email to:", formData.email);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setMessage({
+            type: "success",
+            text: "Reset instructions sent to your email!",
+          });
+          setActiveTab("reset");
           break;
 
-        case 'reset':
+        case "reset":
           if (formData.password !== formData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Passwords do not match!' });
+            setMessage({ type: "error", text: "Passwords do not match!" });
             break;
           }
-          console.log('Resetting password with token:', formData.resetToken);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          setMessage({ type: 'success', text: 'Password reset successfully! Redirecting to sign in...' });
-          
+          console.log("Resetting password with token:", formData.resetToken);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setMessage({
+            type: "success",
+            text: "Password reset successfully! Redirecting to sign in...",
+          });
+
           setTimeout(() => {
-            setActiveTab('signin');
-            setFormData(prev => ({ 
-              ...prev, 
-              password: '', 
-              confirmPassword: '', 
-              resetToken: '' 
+            setActiveTab("signin");
+            setFormData((prev) => ({
+              ...prev,
+              password: "",
+              confirmPassword: "",
+              resetToken: "",
             }));
           }, 1500);
           break;
 
-        case 'resend':
-          console.log('Resending verification to:', formData.email);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          setMessage({ type: 'success', text: 'Verification email sent!' });
+        case "resend":
+          console.log("Resending verification to:", formData.email);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setMessage({ type: "success", text: "Verification email sent!" });
           break;
       }
     } catch (error) {
       console.error("💥 Form submission error:", error);
-      setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      setMessage({
+        type: "error",
+        text: "Something went wrong. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -135,13 +156,13 @@ const Accountpage = () => {
   };
 
   const goBack = () => {
-    setActiveTab('signin');
-    setMessage({ type: '', text: '' });
+    setActiveTab("signin");
+    setMessage({ type: "", text: "" });
   };
 
   const renderForm = () => {
     switch (activeTab) {
-      case 'signin':
+      case "signin":
         return (
           <>
             <div>
@@ -214,7 +235,7 @@ const Accountpage = () => {
           </>
         );
 
-      case 'signup':
+      case "signup":
         return (
           <>
             <div>
@@ -321,8 +342,11 @@ const Accountpage = () => {
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                By signing up, you agree to our{' '}
-                <button type="button" className="text-blue-400 hover:text-blue-500 font-medium">
+                By signing up, you agree to our{" "}
+                <button
+                  type="button"
+                  className="text-blue-400 hover:text-blue-500 font-medium"
+                >
                   Terms of Service
                 </button>
               </p>
@@ -330,13 +354,17 @@ const Accountpage = () => {
           </>
         );
 
-      case 'forgot':
+      case "forgot":
         return (
           <>
             <div className="text-center mb-6">
               <FaLock className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900">Reset Your Password</h3>
-              <p className="text-gray-600 mt-2">Enter your email to receive reset instructions</p>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Reset Your Password
+              </h3>
+              <p className="text-gray-600 mt-2">
+                Enter your email to receive reset instructions
+              </p>
             </div>
 
             <div>
@@ -361,13 +389,17 @@ const Accountpage = () => {
           </>
         );
 
-      case 'reset':
+      case "reset":
         return (
           <>
             <div className="text-center mb-6">
               <FaCheckCircle className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900">Create New Password</h3>
-              <p className="text-gray-600 mt-2">Enter your new password and reset token</p>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Create New Password
+              </h3>
+              <p className="text-gray-600 mt-2">
+                Enter your new password and reset token
+              </p>
             </div>
 
             <div>
@@ -449,13 +481,17 @@ const Accountpage = () => {
           </>
         );
 
-      case 'resend':
+      case "resend":
         return (
           <>
             <div className="text-center mb-6">
               <FaPaperPlane className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900">Resend Verification</h3>
-              <p className="text-gray-600 mt-2">Enter your email to resend verification instructions</p>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Resend Verification
+              </h3>
+              <p className="text-gray-600 mt-2">
+                Enter your email to resend verification instructions
+              </p>
             </div>
 
             <div>
@@ -479,7 +515,7 @@ const Accountpage = () => {
             </div>
           </>
         );
-        
+
       default:
         return null;
     }
@@ -487,12 +523,18 @@ const Accountpage = () => {
 
   const getSubmitButtonText = () => {
     switch (activeTab) {
-      case 'signin': return 'Sign In';
-      case 'signup': return 'Create Account';
-      case 'forgot': return 'Send Reset Instructions';
-      case 'reset': return 'Reset Password';
-      case 'resend': return 'Resend Verification';
-      default: return 'Submit';
+      case "signin":
+        return "Sign In";
+      case "signup":
+        return "Create Account";
+      case "forgot":
+        return "Send Reset Instructions";
+      case "reset":
+        return "Reset Password";
+      case "resend":
+        return "Resend Verification";
+      default:
+        return "Submit";
     }
   };
 
@@ -505,16 +547,18 @@ const Accountpage = () => {
             Welcome to LegalAI
           </h1>
           <p className="text-gray-600">
-            {activeTab === 'signin' || activeTab === 'signup' 
-              ? 'Sign in to your account or create a new one to get started'
-              : ''}
+            {activeTab === "signin" || activeTab === "signup"
+              ? "Sign in to your account or create a new one to get started"
+              : ""}
           </p>
         </div>
 
         {/* Auth Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           {/* Back Button for non-main tabs */}
-          {(activeTab === 'forgot' || activeTab === 'reset' || activeTab === 'resend') && (
+          {(activeTab === "forgot" ||
+            activeTab === "reset" ||
+            activeTab === "resend") && (
             <button
               onClick={goBack}
               className="flex items-center text-blue-400 hover:text-blue-500 mb-6 font-medium"
@@ -525,20 +569,24 @@ const Accountpage = () => {
           )}
 
           {/* Tabs - Only show for signin/signup */}
-          {(activeTab === 'signin' || activeTab === 'signup') && (
+          {(activeTab === "signin" || activeTab === "signup") && (
             <div className="flex border-b border-gray-200 mb-8">
               <button
-                onClick={() => setActiveTab('signin')}
+                onClick={() => setActiveTab("signin")}
                 className={`auth-tab flex-1 py-4 text-center text-lg ${
-                  activeTab === 'signin' ? 'active text-blue-400 border-b-2 border-blue-400' : 'text-gray-500 hover:text-gray-700'
+                  activeTab === "signin"
+                    ? "active text-blue-400 border-b-2 border-blue-400"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Sign In
               </button>
               <button
-                onClick={() => setActiveTab('signup')}
+                onClick={() => setActiveTab("signup")}
                 className={`auth-tab flex-1 py-4 text-center text-lg ${
-                  activeTab === 'signup' ? 'active text-blue-400 border-b-2 border-blue-400' : 'text-gray-500 hover:text-gray-700'
+                  activeTab === "signup"
+                    ? "active text-blue-400 border-b-2 border-blue-400"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Sign Up
@@ -548,9 +596,13 @@ const Accountpage = () => {
 
           {/* Message Display */}
           {message.text && (
-            <div className={`mb-6 p-4 rounded-lg text-center ${
-              message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-            }`}>
+            <div
+              className={`mb-6 p-4 rounded-lg text-center ${
+                message.type === "success"
+                  ? "bg-green-50 text-green-700"
+                  : "bg-red-50 text-red-700"
+              }`}
+            >
               {message.text}
             </div>
           )}
@@ -592,17 +644,19 @@ const Accountpage = () => {
         </div>
 
         {/* Switch Auth Type - Only for signin/signup */}
-        {(activeTab === 'signin' || activeTab === 'signup') && (
+        {(activeTab === "signin" || activeTab === "signup") && (
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              {activeTab === 'signin' 
-                ? "Don't have an account? " 
+              {activeTab === "signin"
+                ? "Don't have an account? "
                 : "Already have an account? "}
               <button
-                onClick={() => setActiveTab(activeTab === 'signin' ? 'signup' : 'signin')}
+                onClick={() =>
+                  setActiveTab(activeTab === "signin" ? "signup" : "signin")
+                }
                 className="text-blue-400 hover:text-blue-500 font-medium"
               >
-                {activeTab === 'signin' ? 'Sign up now' : 'Sign in here'}
+                {activeTab === "signin" ? "Sign up now" : "Sign in here"}
               </button>
             </p>
           </div>
@@ -613,4 +667,3 @@ const Accountpage = () => {
 };
 
 export default Accountpage;
-
